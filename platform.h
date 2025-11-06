@@ -13,6 +13,10 @@ struct platform_native_overrides {
 	int shutdown_flags;
 };
 
+struct platform_desc {
+	struct platform_native_overrides overrides;
+};
+
 struct platform {
 	void (*init)(struct platform *, struct platform_desc *);
 	void (*shutdown)(struct platform *);
