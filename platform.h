@@ -3,11 +3,11 @@
 #include <stddef.h>
 
 struct platform {
-	void (*init)(struct platform *, struct platform_desc *);
+	void (*start)(struct platform *);
 	void (*shutdown)(struct platform *);
-	void (*init_window)(struct platform *, struct platform_window *, 
+	void (*init_window)(struct platform *, struct platform_window_handle *, 
 			struct platform_window_desc *);
-	void (*finish_window)(struct platform_window *);
+	void (*finish_window)(struct platform_window_handle *);
 	void *native_handle;
 	void *config_handle;
 	size_t config_handle_size;
@@ -24,7 +24,7 @@ struct platform_window_handle {
 	void *native_handle;
 };
 
-static inline void platform_init(struct platform *platform, 
+static inline void platform_start(struct platform *platform, 
 		struct platform_desc *platform_desc)
 {
 	if (platform && platform->init) {
@@ -39,7 +39,7 @@ static inline void platform_shutdown(struct platform *platform)
 	}
 }
 
-static inline void platform_window_init(struct platform_window *window,
+static inline void platform_window_handle_init(struct platform_window_handle *window,
 		struct platform_window_desc *window_desc, 
 		struct platform *parent_platform)
 {
@@ -48,7 +48,7 @@ static inline void platform_window_init(struct platform_window *window,
 	}
 }
 
-static inline void platform_window_finish(struct platform_window *window)
+static inline void platform_window_handle_finish(struct platform_window_handle *window)
 {
 	if (window && window->parent_platform) {
 		window->parent_platform->finish_window(window->parent_platform, window);
