@@ -32,10 +32,7 @@ struct platform_window_desc {
 	const char *title;
 };
 
-struct platform_window {
-	int width;
-	int height;
-	const char *title;
+struct platform_window_handle {
 	struct platform *parent_platform;
 	void *native_handle;
 };
