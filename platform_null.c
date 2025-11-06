@@ -10,26 +10,25 @@ static void start_null_platform(struct platform *platform)
 static void shutdown_null_platform(struct platform *platform)
 {
 	assert(platform);
-	memset(platform, 0, sizeof(struct platform));
+	platform->native_handle = NULL;
 }
 
-static void init_null_platform_window(struct platform *platform, struct platform_window *window, struct platform_window_desc *window_desc);
+static void init_null_window(struct platform *platform, 
+		struct platform_window_handle *window, 
+		struct platform_window_desc *window_desc)
 {
 	assert(platform);
 	assert(window);
-	assert(desc);
-	window->width = window_desc->width;
-	window->height = window_desc->height;
-	window->title = NULL;
+	assert(window_desc);
 	window->parent_platform = platform;
 	window->native_handle = NULL;
 }
 
-static void finish_null_platform_window(struct platform_window *window)
+static void finish_null_window(struct platform_window_handle *window)
 {
 	assert(window);
 	assert(window->parent_platform);
-	memset(window, 0, sizeof(struct platform_window));
+	window->native_handle = NULL;
 }	
 
 void platform_null_bind(struct platform *platform)
