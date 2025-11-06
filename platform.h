@@ -30,8 +30,8 @@ struct platform {
 
 static inline void platform_start(struct platform *platform)
 {
-	if (platform && platform->init) {
-		platform->init(platform, platform_desc);
+	if (platform && platform->start) {
+		platform->start(platform);
 	}	
 }
 
@@ -54,7 +54,7 @@ static inline void platform_window_handle_init(struct platform_window_handle *wi
 static inline void platform_window_handle_finish(struct platform_window_handle *window)
 {
 	if (window && window->parent_platform) {
-		window->parent_platform->finish_window(window->parent_platform, window);
+		window->parent_platform->finish_window(window);
 	}
 }
 
