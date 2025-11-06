@@ -26,7 +26,6 @@ struct platform {
 	size_t config_handle_size;
 };
 
-
 static inline void platform_start(struct platform *platform)
 {
 	if (platform && platform->start) {
