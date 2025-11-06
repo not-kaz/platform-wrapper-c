@@ -1,6 +1,18 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+enum platform_native_override_policy {
+	PLATFORM_NATIVE_OVERRIDE_POLICY_NONE,
+	PLATFORM_NATIVE_OVERRIDE_POLICY_AUGMENT,
+	PLATFORM_NATIVE_OVERRIDE_POLICY_REPLACE
+};
+
+struct platform_native_overrides {
+	enum platform_native_override_policy policy;
+	int init_flags;
+	int shutdown_flags;
+};
+
 struct platform {
 	void (*init)(struct platform *, struct platform_desc *);
 	void (*shutdown)(struct platform *);
