@@ -9,6 +9,8 @@ struct platform {
 			struct platform_window_desc *);
 	void (*finish_window)(struct platform_window *);
 	void *native_handle;
+	void *config_handle;
+	size_t config_handle_size;
 };
 
 struct platform_window_desc {
