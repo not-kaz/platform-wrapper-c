@@ -2,16 +2,8 @@
 #define PLATFORM_H
 #include <stddef.h>
 
-struct platform {
-	void (*start)(struct platform *);
-	void (*shutdown)(struct platform *);
-	void (*init_window)(struct platform *, struct platform_window_handle *, 
-			struct platform_window_desc *);
-	void (*finish_window)(struct platform_window_handle *);
-	void *native_handle;
-	void *config_handle;
-	size_t config_handle_size;
-};
+/* Forward declaration */
+struct platform;
 
 struct platform_window_desc {
 	int width;
@@ -24,8 +16,19 @@ struct platform_window_handle {
 	void *native_handle;
 };
 
-static inline void platform_start(struct platform *platform, 
-		struct platform_desc *platform_desc)
+struct platform {
+	void (*start)(struct platform *);
+	void (*shutdown)(struct platform *);
+	void (*init_window)(struct platform *, struct platform_window_handle *, 
+			struct platform_window_desc *);
+	void (*finish_window)(struct platform_window_handle *);
+	void *native_handle;
+	void *config_handle;
+	size_t config_handle_size;
+};
+
+
+static inline void platform_start(struct platform *platform)
 {
 	if (platform && platform->init) {
 		platform->init(platform, platform_desc);
