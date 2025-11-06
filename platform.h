@@ -2,7 +2,6 @@
 #define PLATFORM_H
 #include <stddef.h>
 
-/* Forward declaration */
 struct platform;
 
 struct platform_window_desc {
