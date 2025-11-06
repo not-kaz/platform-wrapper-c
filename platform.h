@@ -1,6 +1,15 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+struct platform {
+	void (*init)(struct platform *, struct platform_desc *);
+	void (*shutdown)(struct platform *);
+	void (*init_window)(struct platform *, struct platform_window *, 
+			struct platform_window_desc *);
+	void (*finish_window)(struct platform_window *);
+	void *native_handle;
+};
+
 struct platform_window_desc {
 	int width;
 	int height;
@@ -12,19 +21,6 @@ struct platform_window {
 	int height;
 	const char *title;
 	struct platform *parent_platform;
-	void *native_handle;
-};
-
-typedef void (*platform_init_fn)(struct platform *, struct platform_desc *);
-typedef void (*platform_shutdown_fn)(struct platform *);
-typedef void *(*platform_init_window_fn)(struct platform_window_desc *);
-typedef void (*platform_finish_window_fn)(struct platform_window *);
-
-struct platform {
-	platform_init_fn init;
-	platform_shutdown_fn shutdown;
-	platform_init_window_fn init_window;
-	platform_finish_window_fn finish_window;
 	void *native_handle;
 };
 
