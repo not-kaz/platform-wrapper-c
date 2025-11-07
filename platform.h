@@ -8,11 +8,18 @@ struct platform_window_desc {
 	int width;
 	int height;
 	const char *title;
+	void *config_handle;
+	size_t config_handle_size;
 };
 
 struct platform_window_handle {
 	struct platform *parent_platform;
 	void *native_handle;
+};
+
+struct platform_desc {
+	void *config_handle;
+	size_t config_handle_size;
 };
 
 struct platform {
@@ -22,8 +29,6 @@ struct platform {
 			struct platform_window_desc *);
 	void (*finish_window)(struct platform_window_handle *);
 	void *native_handle;
-	void *config_handle;
-	size_t config_handle_size;
 };
 
 static inline void platform_start(struct platform *platform)
