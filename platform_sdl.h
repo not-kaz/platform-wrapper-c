@@ -13,10 +13,6 @@ struct platform_sdl_window_config {
 	int init_flags;
 };
 
-struct platform_sdl_window_extension {
-	void *gl_context;
-};
-
 void platform_sdl_bind(struct platform *platform);
 
 #endif
