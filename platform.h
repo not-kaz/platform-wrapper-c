@@ -23,7 +23,7 @@ struct platform_desc {
 };
 
 struct platform {
-	void (*start)(struct platform *);
+	void (*start)(struct platform *, struct platform_desc *);
 	void (*shutdown)(struct platform *);
 	void (*init_window)(struct platform *, struct platform_window_handle *, 
 			struct platform_window_desc *);
@@ -31,10 +31,11 @@ struct platform {
 	void *native_handle;
 };
 
-static inline void platform_start(struct platform *platform)
+static inline void platform_start(struct platform *platform, 
+		struct platform_desc *platform_desc)
 {
 	if (platform && platform->start) {
-		platform->start(platform);
+		platform->start(platform, platform_desc);
 	}	
 }
 
