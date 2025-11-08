@@ -15,6 +15,7 @@ struct platform_window_desc {
 };
 
 struct platform_window_handle {
+	void *native_handle;
 	struct platform *parent_platform;
 	void *native_handle;
 };
