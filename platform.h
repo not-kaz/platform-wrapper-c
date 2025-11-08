@@ -1,12 +1,13 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 #include <stddef.h>
+#include <stdint.h>
 
 struct platform;
 
 struct platform_window_desc {
-	int width;
-	int height;
+	int32_t width;
+	int32_t height;
 	const char *title;
 	void *config_handle;
 	size_t config_handle_size;
