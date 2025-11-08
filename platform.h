@@ -17,7 +17,22 @@ struct platform_window_desc {
 struct platform_window_handle {
 	void *native_handle;
 	struct platform *parent_platform;
+};
+
+struct platform_surface_desc {
+	int32_t width;
+	int32_t height;
+	void *pixel_data;
+	struct platform_window_handle *parent_window;
+};
+
+struct platform_surface_handle {
+	uint32_t width;
+	uint32_t height;
+	uint32_t pitch;
+	void *pixel_data;
 	void *native_handle;
+	struct platform_window_handle *parent_window;
 };
 
 struct platform_desc {
