@@ -11,6 +11,7 @@ struct platform_window_desc {
 	const char *title;
 	void *config_handle;
 	size_t config_handle_size;
+	struct platform *parent_platform;
 };
 
 struct platform_window_handle {
@@ -48,8 +49,7 @@ static inline void platform_shutdown(struct platform *platform)
 }
 
 static inline void platform_window_handle_init(struct platform_window_handle *window,
-		struct platform_window_desc *window_desc, 
-		struct platform *parent_platform)
+		struct platform_window_desc *window_desc)
 {
 	if (window && parent_platform && parent_platform->init_window) {
 		parent_platform->init_window(parent_platform, window, window_desc);
