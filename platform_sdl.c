@@ -39,8 +39,10 @@ static void start_sdl_platform(struct platform *platform,
 
 static void shutdown_sdl_platform(struct platform *platform)
 {
-	assert(platform);
-	platform->native_handle = NULL;
+	if (platform) {
+		SDL_Quit();
+		platform->native_handle = 0;
+	}
 }
 
 static void init_sdl_window(struct platform *platform, 
