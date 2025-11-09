@@ -4,29 +4,28 @@
 #include "platform.h"
 #include "platform_sdl.h"
 
-static void start_sdl_platform(struct platform *platform, 
-		struct platform_desc *platform_desc)
+static SDL_WindowFlags translate_window_feature_flags(uint32_t abstract_flags)
 {
-	struct platform_sdl_config *custom_conf = (struct platform_sdl_config *)platform_desc->config_handle;
-	struct platform_sdl_config conf = {
-		.init_flags = SDL_INIT_VIDEO | SDL_INIT_EVENTS,
-		.exec_pre_start_hook = NULL,
-		.exec_post_start_hook = NULL
+	struct feature_flag_mapping {
+		SDL_WindowFlags native;
+		uint32_t abstract;
 	};
+	const struct feature_flag_mapping flag_map[] = {
+		{SDL_WINDOW_FULLSCREEN, PLATFORM_WINDOW_FEATURE_FULLSCREEN},
+		{SDL_WINDOW_BORDERLESS, PLATFORM_WINDOW_FEATURE_BORDERLESS},
+		{SDL_WINDOW_MINIMIZED, PLATFORM_WINDOW_FEATURE_MINIMIZED},
+		{SDL_WINDOW_MAXIMIZED, PLATFORM_WINDOW_FEATURE_MAXIMIZED}
+	};
+	SDL_WindowFlags native_flags = 0;
 
-	assert(platform);
-	if (platform_desc && platform_desc->config_handle 
-			&& platform_desc->config_handle_size == sizeof(struct platform_sdl_config)) {
-		conf.init_flags = custom_conf->init_flags;
-		if (custom_conf->exec_pre_start_hook) {
-			conf.exec_pre_start_hook = custom_conf->exec_pre_start_hook;
-		}
-		if (custom_conf->exec_post_start_hook) {
-			conf.exec_post_start_hook = custom_conf->exec_post_start_hook;
+	for (size_t i = 0; i < sizeof(flag_map) / sizeof(flag_map[0]); i++) {
+		if (abstract_flags & flag_map[i].abstract) {
+			native_flags |= flag_map[i].native;
 		}
 	}
-	if (conf.exec_pre_start_hook) {
-		conf.exec_pre_start_hook(platform);
+	return native_flags;
+}
+
 	}
 	if (!SDL_Init(conf.init_flags)) {
 		return;
