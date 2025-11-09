@@ -4,7 +4,7 @@
 struct platform;
 
 struct platform_sdl_override {
-	int init_flags;
+	uint32_t init_flags;
 	void (*exec_pre_start_hook)(struct platform *);
 	void (*exec_post_start_hook)(struct platform *);
 };
