@@ -25,9 +25,9 @@ struct platform_surface_desc {
 };
 
 struct platform_surface_handle {
-	uint32_t width;
-	uint32_t height;
-	uint32_t pitch;
+	int32_t width;
+	int32_t height;
+	int32_t pitch;
 	void *pixel_data;
 	uintptr_t native_handle;
 	struct platform_window_handle *parent_window;
