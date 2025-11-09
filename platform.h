@@ -5,12 +5,17 @@
 
 struct platform;
 
+struct platform_native_override {
+	void *handle;
+	size_t size;
+};
+
 struct platform_window_desc {
+	const char *title;
 	int32_t width;
 	int32_t height;
-	const char *title;
-	void *config_handle;
-	size_t config_handle_size;
+	uint32_t feature_flags;
+	struct platform_native_override *override;
 };
 
 struct platform_window_handle {
@@ -34,8 +39,7 @@ struct platform_surface_handle {
 };
 
 struct platform_desc {
-	void *config_handle;
-	size_t config_handle_size;
+	struct platform_native_override *override;
 };
 
 struct platform {
