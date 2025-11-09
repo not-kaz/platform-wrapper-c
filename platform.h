@@ -14,7 +14,7 @@ struct platform_window_desc {
 };
 
 struct platform_window_handle {
-	void *native_handle;
+	uintptr_t native_handle;
 	struct platform *parent_platform;
 };
 
@@ -29,7 +29,7 @@ struct platform_surface_handle {
 	uint32_t height;
 	uint32_t pitch;
 	void *pixel_data;
-	void *native_handle;
+	uintptr_t native_handle;
 	struct platform_window_handle *parent_window;
 };
 
@@ -44,7 +44,7 @@ struct platform {
 	void (*init_window)(struct platform *, struct platform_window_handle *, 
 			struct platform_window_desc *);
 	void (*finish_window)(struct platform_window_handle *);
-	void *native_handle;
+	uintptr_t native_handle;
 };
 
 static inline void platform_start(struct platform *platform, 
