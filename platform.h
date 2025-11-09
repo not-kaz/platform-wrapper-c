@@ -45,8 +45,7 @@ struct platform_desc {
 struct platform {
 	void (*start)(struct platform *, struct platform_desc *);
 	void (*shutdown)(struct platform *);
-	void (*init_window)(struct platform *, struct platform_window_handle *, 
-			struct platform_window_desc *);
+	void (*init_window)(struct platform_window_handle *, struct platform_window_desc *);
 	void (*finish_window)(struct platform_window_handle *);
 	uintptr_t native_handle;
 };
@@ -67,11 +66,11 @@ static inline void platform_shutdown(struct platform *platform)
 }
 
 static inline void platform_window_handle_init(struct platform_window_handle *window,
-		struct platform_window_desc *window_desc, 
-		struct platform *parent_platform)
+		struct platform_window_desc *desc, struct platform *parent_platform)
 {
 	if (window && parent_platform && parent_platform->init_window) {
-		parent_platform->init_window(parent_platform, window, window_desc);
+		window->parent_platform = parent_platform;
+		parent_platform->init_window(window, desc);
 	}
 }
 
