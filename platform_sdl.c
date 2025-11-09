@@ -53,6 +53,7 @@ static void init_sdl_window(struct platform *platform,
 	struct platform_sdl_window_config conf = {
 		.init_flags = SDL_WINDOW_RESIZABLE
 	};
+	SDL_Window *window_handle = NULL;
 
 	if (!platform || !window) {
 		return;
@@ -61,13 +62,14 @@ static void init_sdl_window(struct platform *platform,
 			&& window_desc->config_handle_size == sizeof(struct platform_sdl_window_config)) {
 		conf.init_flags = custom_conf->init_flags;
 	}
-	window->native_handle = SDL_CreateWindow(window_desc->title, window_desc->width, 
+	window_handle = SDL_CreateWindow(window_desc->title, window_desc->width, 
 			window_desc->height, conf.init_flags);
-	if (!window->native_handle) {
+	if (!window_handle) {
 		return;
 	}
+	window->native_handle = (uintptr_t)window_handle;
 	window->parent_platform = platform;
-	SDL_ShowWindow(window->native_handle);
+	SDL_ShowWindow((SDL_Window *)window->native_handle);
 }
 
 static void finish_sdl_window(struct platform_window_handle *window)
