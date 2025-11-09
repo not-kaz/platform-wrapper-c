@@ -75,7 +75,7 @@ static void init_sdl_window(struct platform *platform,
 static void finish_sdl_window(struct platform_window_handle *window)
 {
 	if (window && window->parent_platform) {
-		SDL_DestroyWindow(window->native_handle);
+		SDL_DestroyWindow((SDL_Window *)window->native_handle);
 	}
 }	
 
