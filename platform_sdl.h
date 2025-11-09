@@ -10,7 +10,7 @@ struct platform_sdl_override {
 };
 
 struct platform_sdl_window_override {
-	int init_flags;
+	uint64_t feature_flags;
 };
 
 void platform_sdl_bind(struct platform *platform);
