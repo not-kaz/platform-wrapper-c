@@ -58,30 +58,28 @@ static void shutdown_sdl_platform(struct platform *platform)
 	}
 }
 
-static void init_sdl_window(struct platform *platform, 
-		struct platform_window_handle *window, 
-		struct platform_window_desc *window_desc)
+static void init_sdl_window(struct platform_window_handle *window, struct platform_window_desc *desc)
 {
-	struct platform_sdl_window_config *custom_conf = (struct platform_sdl_window_config *)window_desc->config_handle;
-	struct platform_sdl_window_config conf = {
-		.init_flags = SDL_WINDOW_RESIZABLE
-	};
+	struct platform_sdl_window_override *override = NULL;
+	SDL_WindowFlags feature_flags = 0;
 	SDL_Window *window_handle = NULL;
 
-	if (!platform || !window) {
-		return;
+	assert(window);
+	assert(window->parent_platform); /* NOTE: Not necessary, but we'll keep it here for the moment. */
+	if (desc && desc->override && desc->override->handle 
+			&& desc->override->size == sizeof(struct platform_sdl_window_override)) {
+		override = (struct platform_sdl_window_override *)desc->override->handle;
 	}
-	if (window_desc && window_desc->config_handle 
-			&& window_desc->config_handle_size == sizeof(struct platform_sdl_window_config)) {
-		conf.init_flags = custom_conf->init_flags;
+	if (override) {
+		feature_flags = (SDL_WindowFlags)override->feature_flags;
+	} else if (desc->feature_flags) {
+		feature_flags = translate_window_feature_flags(desc->feature_flags);
 	}
-	window_handle = SDL_CreateWindow(window_desc->title, window_desc->width, 
-			window_desc->height, conf.init_flags);
+	window_handle = SDL_CreateWindow(desc->title, desc->width, desc->height, feature_flags);
 	if (!window_handle) {
 		return;
 	}
 	window->native_handle = (uintptr_t)window_handle;
-	window->parent_platform = platform;
 	SDL_ShowWindow((SDL_Window *)window->native_handle);
 }
 
