@@ -26,12 +26,26 @@ static SDL_WindowFlags translate_window_feature_flags(uint32_t abstract_flags)
 	return native_flags;
 }
 
+static void start_sdl_platform(struct platform *platform, struct platform_desc *desc)
+{
+	struct platform_sdl_override *override = NULL;
+	SDL_InitFlags init_flags = SDL_INIT_VIDEO | SDL_INIT_EVENTS;
+
+	assert(platform);
+	if (desc && desc->override && desc->override->handle && desc->override->size == sizeof(struct platform_sdl_override)) {
+		override = (struct platform_sdl_override *)desc->override->handle;
 	}
-	if (!SDL_Init(conf.init_flags)) {
+	if (override) {
+		init_flags = (SDL_InitFlags)override->init_flags;
+		if (override->exec_pre_start_hook) {
+			override->exec_pre_start_hook(platform);
+		}
+	}
+	if (!SDL_Init(init_flags)) {
 		return;
 	}
-	if (conf.exec_post_start_hook) {
-		conf.exec_post_start_hook(platform);
+	if (override && override->exec_post_start_hook) {
+		override->exec_post_start_hook(platform);
 	}
 	platform->native_handle = 0; /* NOTE: Unused for this backend. */
 }
