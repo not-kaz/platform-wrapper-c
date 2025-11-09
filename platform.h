@@ -50,11 +50,10 @@ struct platform {
 	uintptr_t native_handle;
 };
 
-static inline void platform_start(struct platform *platform, 
-		struct platform_desc *platform_desc)
+static inline void platform_start(struct platform *platform, struct platform_desc *desc)
 {
 	if (platform && platform->start) {
-		platform->start(platform, platform_desc);
+		platform->start(platform, desc);
 	}	
 }
 
