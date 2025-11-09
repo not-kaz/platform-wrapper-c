@@ -9,7 +9,7 @@ struct platform_sdl_override {
 	void (*exec_post_start_hook)(struct platform *);
 };
 
-struct platform_sdl_window_config {
+struct platform_sdl_window_override {
 	int init_flags;
 };
 
