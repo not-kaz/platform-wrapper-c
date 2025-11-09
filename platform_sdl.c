@@ -34,6 +34,7 @@ static void start_sdl_platform(struct platform *platform,
 	if (conf.exec_post_start_hook) {
 		conf.exec_post_start_hook(platform);
 	}
+	platform->native_handle = 0; /* NOTE: Unused for this backend. */
 }
 
 static void shutdown_sdl_platform(struct platform *platform)
