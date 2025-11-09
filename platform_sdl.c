@@ -54,8 +54,9 @@ static void init_sdl_window(struct platform *platform,
 		.init_flags = SDL_WINDOW_RESIZABLE
 	};
 
-	assert(platform);
-	assert(window);
+	if (!platform || !window) {
+		return;
+	}
 	if (window_desc && window_desc->config_handle 
 			&& window_desc->config_handle_size == sizeof(struct platform_sdl_window_config)) {
 		conf.init_flags = custom_conf->init_flags;
