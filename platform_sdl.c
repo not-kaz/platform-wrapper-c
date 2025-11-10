@@ -62,7 +62,7 @@ static void init_sdl_window(struct platform_window_handle *window, struct platfo
 {
 	struct platform_sdl_window_override *override = NULL;
 	SDL_WindowFlags feature_flags = 0;
-	SDL_Window *window_handle = NULL;
+	SDL_Window *native_window = NULL;
 
 	assert(window);
 	assert(window->parent_platform); /* NOTE: Not necessary, but we'll keep it here for the moment. */
@@ -75,11 +75,11 @@ static void init_sdl_window(struct platform_window_handle *window, struct platfo
 	} else if (desc->feature_flags) {
 		feature_flags = translate_window_feature_flags(desc->feature_flags);
 	}
-	window_handle = SDL_CreateWindow(desc->title, desc->width, desc->height, feature_flags);
-	if (!window_handle) {
+	native_window = SDL_CreateWindow(desc->title, desc->width, desc->height, feature_flags);
+	if (!native_window) {
 		return;
 	}
-	window->native_handle = (uintptr_t)window_handle;
+	window->native_handle = (uintptr_t)native_window;
 	SDL_ShowWindow((SDL_Window *)window->native_handle);
 }
 
