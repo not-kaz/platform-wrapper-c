@@ -88,7 +88,34 @@ static void finish_sdl_window(struct platform_window_handle *window)
 	if (window && window->parent_platform) {
 		SDL_DestroyWindow((SDL_Window *)window->native_handle);
 	}
-}	
+}
+
+static void init_sdl_surface(struct platform_surface_handle *surface,
+		struct platform_surface_desc *desc)
+{
+	SDL_Surface *native_surface = NULL;
+
+	assert(surface);
+	if (!desc) {
+		return;
+	}
+	/* TODO: Settle on proper contract for the pitch, possibly something portable. *
+	 * Right now it's 'width * 4', which aligns with the 'BGRA8888' format. */
+	native_surface = SDL_CreateSurfaceFrom(desc->width, desc->height, 
+			SDL_PIXELFORMAT_BGRA8888, desc->pixel_data,
+			desc->width * 4); 
+	if (!native_surface) {
+		return;
+	}
+	surface->native_handle = (uintptr_t)native_surface;
+	surface->pitch = native_surface->pitch;
+}
+
+static void finish_sdl_surface(struct platform_surface_handle *surface)
+{
+	assert(surface);
+	SDL_DestroySurface((SDL_Surface *)surface->native_handle);
+}
 
 void platform_sdl_bind(struct platform *platform)
 {
@@ -97,5 +124,7 @@ void platform_sdl_bind(struct platform *platform)
 		platform->shutdown = shutdown_sdl_platform;
 		platform->init_window = init_sdl_window;
 		platform->finish_window = finish_sdl_window;
+		platform->init_surface = init_sdl_surface;
+		platform->finish_surface = finish_sdl_surface;
 	}
 }
