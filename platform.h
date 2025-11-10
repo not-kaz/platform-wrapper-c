@@ -64,6 +64,8 @@ struct platform {
 	void (*shutdown)(struct platform *);
 	void (*init_window)(struct platform_window_handle *, struct platform_window_desc *);
 	void (*finish_window)(struct platform_window_handle *);
+	void (*init_surface)(struct platform_surface_handle *, struct platform_surface_desc *);
+	void (*finish_surface)(struct platform_surface_handle *);
 	uintptr_t native_handle;
 };
 
@@ -94,6 +96,21 @@ static inline void platform_window_handle_finish(struct platform_window_handle *
 {
 	if (window && window->parent_platform) {
 		window->parent_platform->finish_window(window);
+	}
+}
+
+static inline void platform_surface_handle_init(struct platform_surface_handle *surface,
+		struct platform_surface_desc *desc, struct platform *parent_platform)
+{
+	if (surface && parent_platform && parent_platform->init_surface) {
+		parent_platform->init_surface(surface, desc);
+	}
+}
+
+static inline void platform_surface_handle_finish(struct platform_surface_handle *surface)
+{
+	if (surface && surface->parent_platform && surface->parent_platform->finish_surface) {
+		surface->parent_platform->finish_surface(surface);
 	}
 }
 
