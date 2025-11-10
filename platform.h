@@ -52,7 +52,7 @@ struct platform_surface_handle {
 	int32_t pitch;
 	void *pixel_data;
 	uintptr_t native_handle;
-	struct platform_window_handle *parent_window;
+	struct platform *parent_platform;
 };
 
 struct platform_desc {
