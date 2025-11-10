@@ -3,8 +3,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-struct platform;
-
 enum PLATFORM_EVENT_TYPE {
 	PLATFORM_EVENT_TYPE_QUIT,
 	PLATFORM_EVENT_TYPE_WINDOW,
@@ -21,6 +19,8 @@ enum PLATFORM_WINDOW_FEATURE {
 	PLATFORM_WINDOW_FEATURE_MINIMIZED,
 	PLATFORM_WINDOW_FEATURE_MAXIMIZED
 };
+
+struct platform;
 
 struct platform_native_override {
 	void *handle;
