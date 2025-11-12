@@ -50,6 +50,32 @@ enum platform_window_feature {
 
 struct platform;
 
+struct platform_key_event {
+	int unused;
+};
+
+struct platform_mouse_button_event {
+	int unused;
+};
+
+struct platform_window_event {
+	int unused;
+};
+
+struct platform_text_event {
+	int unused;
+};
+
+struct platform_event {
+	enum platform_event_type type;
+	union {
+		struct platform_key_event key;
+		struct platform_mouse_button_event mouse_button;
+		struct platform_window_event window;
+		struct platform_text_event text;
+	} detail;
+};
+
 struct platform_native_override {
 	void *handle;
 	size_t size;
