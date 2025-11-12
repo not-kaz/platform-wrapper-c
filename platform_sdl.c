@@ -11,6 +11,7 @@ static SDL_WindowFlags translate_window_feature_flags(uint32_t abstract_flags)
 		uint32_t abstract;
 	};
 	const struct feature_flag_mapping flag_map[] = {
+		{SDL_WINDOW_RESIZABLE, PLATFORM_WINDOW_FEATURE_RESIZABLE},
 		{SDL_WINDOW_FULLSCREEN, PLATFORM_WINDOW_FEATURE_FULLSCREEN},
 		{SDL_WINDOW_BORDERLESS, PLATFORM_WINDOW_FEATURE_BORDERLESS},
 		{SDL_WINDOW_MINIMIZED, PLATFORM_WINDOW_FEATURE_MINIMIZED},
