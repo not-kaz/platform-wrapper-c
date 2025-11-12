@@ -52,9 +52,11 @@ static void start_sdl_platform(struct platform *platform, struct platform_desc *
 
 static void shutdown_sdl_platform(struct platform *platform)
 {
-	if (platform) {
-		SDL_Quit();
-		platform->native_handle = 0;
+	assert(platform);
+	SDL_Quit();
+	platform->native_handle = 0;
+}
+
 	}
 }
 
