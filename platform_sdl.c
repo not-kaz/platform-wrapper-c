@@ -57,7 +57,48 @@ static void shutdown_sdl_platform(struct platform *platform)
 	platform->native_handle = 0;
 }
 
+static bool poll_sdl_event(struct platform *platform, struct platform_event *event_out)
+{
+	SDL_Event native_event;
+
+	assert(platform);
+	assert(event_out);
+	while (SDL_PollEvent(&native_event)) {
+		switch (native_event.type) {
+		/* Application events */
+		case SDL_EVENT_QUIT:
+			event_out->type = PLATFORM_EVENT_TYPE_QUIT;
+			break;
+		/* Window events */
+		case SDL_EVENT_WINDOW_SHOWN:
+		case SDL_EVENT_WINDOW_HIDDEN:
+		case SDL_EVENT_WINDOW_RESIZED:
+		case SDL_EVENT_WINDOW_MINIMIZED:
+		case SDL_EVENT_WINDOW_MAXIMIZED:
+		case SDL_EVENT_WINDOW_DESTROYED:
+		case SDL_EVENT_WINDOW_FOCUS_GAINED:
+		case SDL_EVENT_WINDOW_FOCUS_LOST:
+			break;
+		/* Keyboard events */
+		case SDL_EVENT_KEY_DOWN:
+		case SDL_EVENT_KEY_UP:
+		case SDL_EVENT_KEYBOARD_ADDED:
+		case SDL_EVENT_KEYBOARD_REMOVED:
+			break;
+		/* Mouse events */
+		case SDL_EVENT_MOUSE_MOTION:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
+		case SDL_EVENT_MOUSE_WHEEL:
+		case SDL_EVENT_MOUSE_ADDED:
+		case SDL_EVENT_MOUSE_REMOVED:
+			break;
+		default:
+			return false;
+			break;
+		}
 	}
+	return true;
 }
 
 static void init_sdl_window(struct platform_window_handle *window, struct platform_window_desc *desc)
@@ -124,6 +165,7 @@ void platform_sdl_bind(struct platform *platform)
 	if (platform) {
 		platform->start = start_sdl_platform;
 		platform->shutdown = shutdown_sdl_platform;
+		platform->poll_event = poll_sdl_event;
 		platform->init_window = init_sdl_window;
 		platform->finish_window = finish_sdl_window;
 		platform->init_surface = init_sdl_surface;
