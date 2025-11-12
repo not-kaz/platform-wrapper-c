@@ -116,6 +116,7 @@ struct platform_desc {
 struct platform {
 	void (*start)(struct platform *, struct platform_desc *);
 	void (*shutdown)(struct platform *);
+	bool (*poll_event)(struct platform *, struct platform_event *);
 	void (*init_window)(struct platform_window_handle *, struct platform_window_desc *);
 	void (*finish_window)(struct platform_window_handle *);
 	void (*init_surface)(struct platform_surface_handle *, struct platform_surface_desc *);
@@ -135,6 +136,14 @@ static inline void platform_shutdown(struct platform *platform)
 	if (platform && platform->shutdown) {
 		platform->shutdown(platform);
 	}
+}
+
+static inline bool platform_poll_event(struct platform *platform, struct platform_event *event_out)
+{
+	if (platform && platform->poll_event && event_out) {
+		return platform->poll_event(platform, event_out);
+	}
+	return false;
 }
 
 static inline void platform_window_handle_init(struct platform_window_handle *window,
