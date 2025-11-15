@@ -116,14 +116,14 @@ struct platform_surface_blit_desc {
 struct platform_surface_desc {
 	int32_t width;
 	int32_t height;
-	void *pixel_data;
+	void *pixel_buffer;
 };
 
 struct platform_surface {
 	int32_t width;
 	int32_t height;
 	int32_t pitch;
-	void *pixel_data;
+	void *pixel_buffer;
 	uintptr_t native_handle;
 	struct platform *parent_platform;
 };
