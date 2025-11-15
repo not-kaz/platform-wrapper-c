@@ -98,6 +98,21 @@ struct platform_window {
 	struct platform *parent_platform;
 };
 
+struct platform_surface_blit_desc {
+	struct {
+		int32_t x;
+		int32_t y;
+		int32_t width;
+		int32_t height;
+	} source;
+	struct {
+		int32_t x;
+		int32_t y;
+		int32_t width;
+		int32_t height;
+	} destination;
+};
+
 struct platform_surface_desc {
 	int32_t width;
 	int32_t height;
