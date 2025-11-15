@@ -133,27 +133,33 @@ struct platform_desc {
 };
 
 struct platform {
-	void (*start)(struct platform *, struct platform_desc *);
-	void (*shutdown)(struct platform *);
-	bool (*poll_event)(struct platform *, struct platform_event *);
-	void (*init_window)(struct platform_window_handle *, struct platform_window_desc *);
-	void (*finish_window)(struct platform_window_handle *);
-	void (*init_surface)(struct platform_surface_handle *, struct platform_surface_desc *);
-	void (*finish_surface)(struct platform_surface_handle *);
+	uintptr_t (*start)(const struct platform_desc *);
+	uintptr_t (*shutdown)(const uintptr_t);
+	bool (*poll_event)(const struct platform *, struct platform_event *);
+	uintptr_t (*create_window)(const struct platform_window_desc *, 
+			const uintptr_t);
+	void (*destroy_window)(const uintptr_t);
+	uintptr_t (*create_surface)(const struct platform_surface_desc *, 
+			const uintptr_t);
+	void (*destroy_surface)(const uintptr_t);
+	bool (*blit_surface)(const uintptr_t, 
+			const struct platform_surface_blit_desc *, 
+			const uintptr_t);
 	uintptr_t native_handle;
 };
 
 static inline void platform_start(struct platform *platform, struct platform_desc *desc)
 {
 	if (platform && platform->start) {
-		platform->start(platform, desc);
+		platform->native_handle = platform->start(desc);
 	}	
 }
 
 static inline void platform_shutdown(struct platform *platform)
 {
-	if (platform && platform->shutdown) {
-		platform->shutdown(platform);
+	if (platform && platform->native_handle != PLATFORM_NATIVE_HANDLE_INVALID 
+			&& platform->shutdown) {
+		platform->native_handle = platform->shutdown(platform->native_handle);
 	}
 }
 
@@ -165,35 +171,90 @@ static inline bool platform_poll_event(struct platform *platform, struct platfor
 	return false;
 }
 
-static inline void platform_window_handle_init(struct platform_window_handle *window,
-		struct platform_window_desc *desc, struct platform *parent_platform)
+static inline bool platform_window_init(struct platform_window *window,
+		struct platform_window_desc *desc, struct platform *platform)
 {
-	if (window && parent_platform && parent_platform->init_window) {
-		window->parent_platform = parent_platform;
-		parent_platform->init_window(window, desc);
+	uintptr_t handle = PLATFORM_NATIVE_HANDLE_INVALID;
+
+	if (!window || !platform) {
+		return false;
+	}
+	if (!desc || desc->width <= 0 || desc->height <= 0) {
+		return false;
+	}
+	if (!platform->create_window 
+			|| platform->native_handle == PLATFORM_NATIVE_HANDLE_INVALID) {
+		return false;
+	}
+	handle = platform->create_window(desc, platform->native_handle);
+	if (handle == PLATFORM_NATIVE_HANDLE_INVALID) {
+		return false;
+	}
+	window->native_handle = handle;
+	window->parent_platform = platform;
+	return true;
+}
+
+static inline void platform_window_finish(struct platform_window *window)
+{
+	if (!window || window->native_handle == PLATFORM_NATIVE_HANDLE_INVALID) {
+		return;
+	}
+	if (!window->parent_platform || !window->parent_platform->destroy_window) {
+		return;
+	}
+	if (window->parent_platform->native_handle == PLATFORM_NATIVE_HANDLE_INVALID) {
+		return;
+	}
+	window->parent_platform->destroy_window(window->native_handle);
+	window->native_handle = PLATFORM_NATIVE_HANDLE_INVALID;
+	window->parent_platform = NULL;
+}
+
+static inline bool platform_surface_init(struct platform_surface *surface,
+		struct platform_surface_desc *desc, struct platform *platform)
+{
+	uintptr_t handle = PLATFORM_NATIVE_HANDLE_INVALID; 
+	if (!surface || !desc || !platform) {
+		return false;
+	}
+	if (!desc->width || !desc->height || !desc->pixel_buffer) {
+		return false;
+	}
+	if (!platform->create_surface 
+			|| platform->native_handle == PLATFORM_NATIVE_HANDLE_INVALID) {
+		return false;
+	}
+	handle = platform->create_surface(desc, platform->native_handle);
+	if (handle == PLATFORM_NATIVE_HANDLE_INVALID) {
+		return false;
+	}
+	surface->width = desc->width;
+	surface->height = desc->height;
+	surface->pixel_buffer = desc->pixel_buffer;
+	surface->native_handle = handle;
+	surface->parent_platform = platform;
+	return true;
+}
+
+static inline void platform_surface_finish(struct platform_surface *surface)
+{
+	if (surface && surface->parent_platform 
+			&& surface->parent_platform->destroy_surface) {
+		surface->parent_platform->destroy_surface(surface->native_handle);
 	}
 }
 
-static inline void platform_window_handle_finish(struct platform_window_handle *window)
+static inline bool platform_surface_blit(struct platform_surface *surface, struct platform_surface_blit_desc *surface_blit_desc, struct platform_window *window)
 {
-	if (window && window->parent_platform) {
-		window->parent_platform->finish_window(window);
+	/* TODO: Compare 'parent_platform' between surface and window, it must be the same. */
+	bool result = false;
+	
+	if (surface && surface->parent_platform && surface->parent_platform->blit_surface && surface_blit_desc && window && window->parent_platform && window->native_handle != PLATFORM_NATIVE_HANDLE_INVALID && window->parent_platform == surface->parent_platform) {
+		surface->parent_platform->blit_surface(surface->native_handle, surface_blit_desc, window->native_handle);
+		result = true;
 	}
-}
-
-static inline void platform_surface_handle_init(struct platform_surface_handle *surface,
-		struct platform_surface_desc *desc, struct platform *parent_platform)
-{
-	if (surface && parent_platform && parent_platform->init_surface) {
-		parent_platform->init_surface(surface, desc);
-	}
-}
-
-static inline void platform_surface_handle_finish(struct platform_surface_handle *surface)
-{
-	if (surface && surface->parent_platform && surface->parent_platform->finish_surface) {
-		surface->parent_platform->finish_surface(surface);
-	}
+	return result;
 }
 
 #endif
