@@ -148,7 +148,7 @@ struct platform {
 	uintptr_t native_handle;
 };
 
-static inline void platform_start(struct platform *platform, i
+static inline void platform_start(struct platform *platform,
 		const struct platform_desc *desc)
 {
 	if (platform && platform->start) {
