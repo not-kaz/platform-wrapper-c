@@ -95,7 +95,7 @@ struct platform_window_desc {
 
 struct platform_window {
 	uintptr_t native_handle;
-	struct platform *parent_platform;
+	const struct platform *parent_platform;
 };
 
 struct platform_surface_blit_desc {
@@ -125,7 +125,7 @@ struct platform_surface {
 	int32_t pitch;
 	void *pixel_buffer;
 	uintptr_t native_handle;
-	struct platform *parent_platform;
+	const struct platform *parent_platform;
 };
 
 struct platform_desc {
@@ -148,7 +148,8 @@ struct platform {
 	uintptr_t native_handle;
 };
 
-static inline void platform_start(struct platform *platform, struct platform_desc *desc)
+static inline void platform_start(struct platform *platform, i
+		const struct platform_desc *desc)
 {
 	if (platform && platform->start) {
 		platform->native_handle = platform->start(desc);
