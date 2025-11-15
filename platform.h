@@ -93,7 +93,7 @@ struct platform_window_desc {
 	struct platform_native_override *override;
 };
 
-struct platform_window_handle {
+struct platform_window {
 	uintptr_t native_handle;
 	struct platform *parent_platform;
 };
@@ -104,7 +104,7 @@ struct platform_surface_desc {
 	void *pixel_data;
 };
 
-struct platform_surface_handle {
+struct platform_surface {
 	int32_t width;
 	int32_t height;
 	int32_t pitch;
