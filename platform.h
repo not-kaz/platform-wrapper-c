@@ -136,15 +136,11 @@ struct platform {
 	uintptr_t (*start)(const struct platform_desc *);
 	uintptr_t (*shutdown)(const uintptr_t);
 	bool (*poll_event)(const struct platform *, struct platform_event *);
-	uintptr_t (*create_window)(const struct platform_window_desc *, 
-			const uintptr_t);
+	uintptr_t (*create_window)(const struct platform_window_desc *, const uintptr_t);
 	void (*destroy_window)(const uintptr_t);
-	uintptr_t (*create_surface)(const struct platform_surface_desc *, 
-			const uintptr_t);
+	uintptr_t (*create_surface)(const struct platform_surface_desc *, const uintptr_t);
 	void (*destroy_surface)(const uintptr_t);
-	bool (*blit_surface)(const uintptr_t, 
-			const struct platform_surface_blit_desc *, 
-			const uintptr_t);
+	bool (*blit_surface)(const uintptr_t, const struct platform_surface_blit_desc *, const uintptr_t);
 	uintptr_t native_handle;
 };
 
