@@ -5,6 +5,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define PLATFORM_NATIVE_HANDLE_INVALID ((uintptr_t)0)
+
+struct platform;
+
 enum platform_event_type {
 	PLATFORM_EVENT_TYPE_UNDEFINED = 0,
 	/* Application events */
@@ -49,8 +53,6 @@ enum platform_window_feature {
 	PLATFORM_WINDOW_FEATURE_MINIMIZED,
 	PLATFORM_WINDOW_FEATURE_MAXIMIZED
 };
-
-struct platform;
 
 struct platform_key_event {
 	int unused;
