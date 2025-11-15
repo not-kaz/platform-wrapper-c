@@ -215,6 +215,7 @@ static inline bool platform_surface_init(struct platform_surface *surface,
 		const struct platform *platform)
 {
 	uintptr_t handle = PLATFORM_NATIVE_HANDLE_INVALID; 
+
 	if (!surface || !desc || !platform) {
 		return false;
 	}
