@@ -164,7 +164,8 @@ static inline void platform_shutdown(struct platform *platform)
 	}
 }
 
-static inline bool platform_poll_event(struct platform *platform, struct platform_event *event_out)
+static inline bool platform_poll_event(const struct platform *platform, 
+		struct platform_event *event_out)
 {
 	if (platform && platform->poll_event && event_out) {
 		return platform->poll_event(platform, event_out);
@@ -173,7 +174,8 @@ static inline bool platform_poll_event(struct platform *platform, struct platfor
 }
 
 static inline bool platform_window_init(struct platform_window *window,
-		struct platform_window_desc *desc, struct platform *platform)
+		const struct platform_window_desc *desc, 
+		const struct platform *platform)
 {
 	uintptr_t handle = PLATFORM_NATIVE_HANDLE_INVALID;
 
@@ -213,7 +215,8 @@ static inline void platform_window_finish(struct platform_window *window)
 }
 
 static inline bool platform_surface_init(struct platform_surface *surface,
-		struct platform_surface_desc *desc, struct platform *platform)
+		const struct platform_surface_desc *desc, 
+		const struct platform *platform)
 {
 	uintptr_t handle = PLATFORM_NATIVE_HANDLE_INVALID; 
 	if (!surface || !desc || !platform) {
@@ -240,13 +243,18 @@ static inline bool platform_surface_init(struct platform_surface *surface,
 
 static inline void platform_surface_finish(struct platform_surface *surface)
 {
-	if (surface && surface->parent_platform 
+	if (surface && surface->native_handle != PLATFORM_NATIVE_HANDLE_INVALID
+			&& surface->parent_platform 
 			&& surface->parent_platform->destroy_surface) {
 		surface->parent_platform->destroy_surface(surface->native_handle);
+		surface->native_handle = PLATFORM_NATIVE_HANDLE_INVALID;
+		surface->parent_platform = NULL;
 	}
 }
 
-static inline bool platform_surface_blit(struct platform_surface *surface, struct platform_surface_blit_desc *surface_blit_desc, struct platform_window *window)
+static inline bool platform_surface_blit(const struct platform_surface *surface, 
+		const struct platform_surface_blit_desc *surface_blit_desc, 
+		const struct platform_window *window)
 {
 	/* TODO: Compare 'parent_platform' between surface and window, it must be the same. */
 	bool result = false;
