@@ -254,13 +254,15 @@ static inline bool platform_surface_blit(const struct platform_surface *surface,
 		const struct platform_window *window)
 {
 	/* TODO: Compare 'parent_platform' between surface and window, it must be the same. */
-	bool result = false;
-	
-	if (surface && surface->parent_platform && surface->parent_platform->blit_surface && surface_blit_desc && window && window->parent_platform && window->native_handle != PLATFORM_NATIVE_HANDLE_INVALID && window->parent_platform == surface->parent_platform) {
-		surface->parent_platform->blit_surface(surface->native_handle, surface_blit_desc, window->native_handle);
-		result = true;
+	if (surface && surface->parent_platform && surface->parent_platform->blit_surface 
+			&& surface_blit_desc && window && window->parent_platform 
+			&& window->native_handle != PLATFORM_NATIVE_HANDLE_INVALID 
+			&& window->parent_platform == surface->parent_platform) {
+		surface->parent_platform->blit_surface(surface->native_handle, 
+				surface_blit_desc, window->native_handle);
+		return true;
 	}
-	return result;
+	return false;
 }
 
 #endif
