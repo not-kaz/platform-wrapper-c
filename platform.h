@@ -167,10 +167,10 @@ static inline void platform_shutdown(struct platform *platform)
 static inline bool platform_poll_event(const struct platform *platform, 
 		struct platform_event *event_out)
 {
-	if (platform && platform->poll_event && event_out) {
-		return platform->poll_event(platform, event_out);
-	}
-	return false;
+	assert(platform);
+	assert(platform->poll_event);
+	assert(event_out);
+	return platform->poll_event(platform->native_handle, event_out);
 }
 
 static inline void platform_window_init(struct platform_window *window,
