@@ -77,22 +77,16 @@ struct platform_event {
 	} detail;
 };
 
-struct platform_native_override {
-	void *handle;
-	size_t size;
-};
-
 struct platform_window_desc {
 	const char *title;
 	int32_t width;
 	int32_t height;
 	uint32_t feature_flags;
-	struct platform_native_override *override;
 };
 
 struct platform_window {
-	uintptr_t native_handle;
-	const struct platform *parent_platform;
+	uintptr_t handle;
+	const struct platform *platform;
 };
 
 struct platform_surface_blit_desc {
