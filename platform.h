@@ -115,8 +115,8 @@ struct platform_surface {
 	int32_t height;
 	int32_t pitch;
 	void *pixel_buffer;
-	uintptr_t native_handle;
-	const struct platform *parent_platform;
+	uintptr_t handle;
+	const struct platform *platform;
 };
 
 struct platform_desc {
@@ -124,19 +124,8 @@ struct platform_desc {
 };
 
 struct platform {
-	uintptr_t (*start)(const struct platform_desc *);
-	uintptr_t (*shutdown)(const uintptr_t);
-	bool (*poll_event)(const uintptr_t, struct platform_event *);
-	uintptr_t (*create_window)(const struct platform_window_desc *, 
-			const uintptr_t);
-	void (*destroy_window)(const uintptr_t);
-	uintptr_t (*create_surface)(const struct platform_surface_desc *, 
-			const uintptr_t);
-	void (*destroy_surface)(const uintptr_t);
-	void (*blit_surface)(const uintptr_t, 
-			const struct platform_surface_blit_desc *, 
-			const uintptr_t);
-	uintptr_t native_handle;
+	struct platform_interface interface;
+	uintptr_t handle;
 };
 
 static inline void platform_start(struct platform *platform,
