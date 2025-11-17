@@ -119,8 +119,22 @@ struct platform_surface {
 	const struct platform *platform;
 };
 
-struct platform_desc {
-	struct platform_native_override *override;
+struct platform_interface {
+	uintptr_t (*create_backend)(void);
+	void (*destroy_backend)(const uintptr_t platform_handle);
+	bool (*poll_event)(struct platform_event *event_out,
+			uintptr_t platform_handle);
+	uintptr_t (*create_window)(
+			const struct platform_window_desc *window_desc, 
+			const uintptr_t platform_handle);
+	void (*destroy_window)(const uintptr_t window_handle);
+	uintptr_t (*create_surface)(
+			const struct platform_surface_desc *surface_desc, 
+			const uintptr_t platform_handle);
+	void (*destroy_surface)(const uintptr_t surface_handle);
+	void (*blit_surface)(const uintptr_t surface_handle, 
+			const struct platform_surface_blit_desc *, 
+			const uintptr_t window_handle);
 };
 
 struct platform {
@@ -128,99 +142,64 @@ struct platform {
 	uintptr_t handle;
 };
 
-static inline void platform_start(struct platform *platform,
-		const struct platform_desc *desc)
+static inline void platform_init(struct platform *platform, 
+		struct platform_interface platform_interface)
 {
-	assert(platform);
-	assert(platform->start);
-	platform->native_handle = platform->start(desc);
+	platform->interface = platform_interface;
+	platform->handle = platform->interface.create_backend();
 }
 
-static inline void platform_shutdown(struct platform *platform)
+static inline void platform_finish(struct platform *platform)
 {
-	assert(platform);
-	assert(platform->shutdown);
-	platform->shutdown(platform->native_handle);
-	platform->native_handle = PLATFORM_NATIVE_HANDLE_INVALID;
+	platform->interface.destroy_backend(platform->handle);
+	platform->handle = (uintptr_t)NULL;
 }
 
 static inline bool platform_poll_event(const struct platform *platform, 
 		struct platform_event *event_out)
 {
-	assert(platform);
-	assert(platform->poll_event);
-	assert(event_out);
-	return platform->poll_event(platform->native_handle, event_out);
+	return platform->interface.poll_event(event_out, platform->handle);
 }
 
 static inline void platform_window_init(struct platform_window *window,
 		const struct platform_window_desc *desc, 
 		const struct platform *platform)
 {
-	uintptr_t handle = PLATFORM_NATIVE_HANDLE_INVALID;
-
-	assert(window);
-	assert(desc);
-	assert(platform);
-	handle = platform->create_window(desc, platform->native_handle);
-	if (handle == PLATFORM_NATIVE_HANDLE_INVALID) {
-		return;
-	}
-	window->native_handle = handle;
-	window->parent_platform = platform;
+	window->handle = platform->interface.create_window(desc, platform->handle);
+	window->platform = platform;
 }
 
 static inline void platform_window_finish(struct platform_window *window)
 {
-	assert(window);
-	assert(window->parent_platform);
-	assert(window->parent_platform->destroy_window);
-	window->parent_platform->destroy_window(window->native_handle);
-	window->native_handle = PLATFORM_NATIVE_HANDLE_INVALID;
-	window->parent_platform = NULL;
+	window->platform->interface.destroy_window(window->handle);
+	window->handle = (uintptr_t)NULL;
+	window->platform = NULL;
 }
 
 static inline void platform_surface_init(struct platform_surface *surface,
 		const struct platform_surface_desc *desc, 
 		const struct platform *platform)
 {
-	uintptr_t handle = PLATFORM_NATIVE_HANDLE_INVALID; 
-
-	assert(surface);
-	assert(desc);
-	assert(platform);
-	handle = platform->create_surface(desc, platform->native_handle);
-	if (handle == PLATFORM_NATIVE_HANDLE_INVALID) {
-		return;
-	}
+	surface->handle = platform->interface.create_surface(desc, platform->handle);
+	surface->platform = platform;
 	surface->width = desc->width;
 	surface->height = desc->height;
 	surface->pixel_buffer = desc->pixel_buffer;
-	surface->native_handle = handle;
-	surface->parent_platform = platform;
 }
 
 static inline void platform_surface_finish(struct platform_surface *surface)
 {
-	assert(surface);
-	assert(surface->parent_platform);
-	assert(surface->parent_platform->destroy_surface);
-	surface->parent_platform->destroy_surface(surface->native_handle);
-	surface->native_handle = PLATFORM_NATIVE_HANDLE_INVALID;
-	surface->parent_platform = NULL;
+	surface->platform->interface.destroy_surface(surface->handle);
+	surface->handle = (uintptr_t)NULL;
+	surface->platform = NULL;
 }
 
 static inline void platform_surface_blit(const struct platform_surface *surface, 
 		const struct platform_surface_blit_desc *surface_blit_desc, 
 		const struct platform_window *window)
 {
-	assert(surface);
-	assert(surface->parent_platform);
-	assert(surface->parent_platform->blit_surface);
-	assert(surface_blit_desc);
-	assert(window);
-	surface->parent_platform->blit_surface(surface->native_handle, 
-			surface_blit_desc, window->native_handle);
+	surface->platform->interface.blit_surface(surface->handle, 
+			surface_blit_desc, window->handle);
 }
 
 #endif
