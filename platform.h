@@ -142,17 +142,23 @@ struct platform {
 	uintptr_t handle;
 };
 
-static inline void platform_init(struct platform *platform, 
+static inline bool platform_init(struct platform *platform, 
 		struct platform_interface platform_interface)
 {
+	uintptr_t handle;
+
+	handle = platform_interface.create_backend();
+	if (handle == (uintptr_t)NULL) {
+		return false;
+	}
+	platform->handle = handle;
 	platform->interface = platform_interface;
-	platform->handle = platform->interface.create_backend();
+	return true;
 }
 
 static inline void platform_finish(struct platform *platform)
 {
 	platform->interface.destroy_backend(platform->handle);
-	platform->handle = (uintptr_t)NULL;
 }
 
 static inline bool platform_poll_event(const struct platform *platform, 
@@ -161,37 +167,47 @@ static inline bool platform_poll_event(const struct platform *platform,
 	return platform->interface.poll_event(event_out, platform->handle);
 }
 
-static inline void platform_window_init(struct platform_window *window,
+static inline bool platform_window_init(struct platform_window *window,
 		const struct platform_window_desc *desc, 
 		const struct platform *platform)
 {
-	window->handle = platform->interface.create_window(desc, platform->handle);
+	uintptr_t handle;
+
+	handle = platform->interface.create_window(desc, platform->handle);
+	if (handle == (uintptr_t)NULL) {
+		return false;
+	}
+	window->handle = handle;
 	window->platform = platform;
+	return true;
 }
 
 static inline void platform_window_finish(struct platform_window *window)
 {
 	window->platform->interface.destroy_window(window->handle);
-	window->handle = (uintptr_t)NULL;
-	window->platform = NULL;
 }
 
-static inline void platform_surface_init(struct platform_surface *surface,
+static inline bool platform_surface_init(struct platform_surface *surface,
 		const struct platform_surface_desc *desc, 
 		const struct platform *platform)
 {
-	surface->handle = platform->interface.create_surface(desc, platform->handle);
+	uintptr_t handle;
+
+	handle = platform->interface.create_surface(desc, platform->handle);
+	if (handle == (uintptr_t)NULL) {
+		return false;
+	}
+	surface->handle = handle;
 	surface->platform = platform;
 	surface->width = desc->width;
 	surface->height = desc->height;
 	surface->pixel_buffer = desc->pixel_buffer;
+	return true;
 }
 
 static inline void platform_surface_finish(struct platform_surface *surface)
 {
 	surface->platform->interface.destroy_surface(surface->handle);
-	surface->handle = (uintptr_t)NULL;
-	surface->platform = NULL;
 }
 
 static inline void platform_surface_blit(const struct platform_surface *surface, 
