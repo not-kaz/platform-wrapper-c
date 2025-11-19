@@ -59,11 +59,11 @@ struct platform_mouse_button_event {
 	int unused;
 };
 
-struct platform_window_event {
+struct platform_mouse_motion_event {
 	int unused;
 };
 
-struct platform_text_event {
+struct platform_window_event {
 	int unused;
 };
 
@@ -72,8 +72,8 @@ struct platform_event {
 	union {
 		struct platform_key_event key;
 		struct platform_mouse_button_event mouse_button;
+		struct platform_mouse_motion_event mouse_motion;
 		struct platform_window_event window;
-		struct platform_text_event text;
 	} detail;
 };
 
