@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <SDL3/SDL.h>
 #include <stdio.h>
 #include "platform.h"
@@ -6,11 +5,10 @@
 
 static SDL_WindowFlags translate_window_feature_flags(uint32_t abstract_flags)
 {
-	struct feature_flag_mapping {
+	const struct {
 		SDL_WindowFlags native;
 		uint32_t abstract;
-	};
-	const struct feature_flag_mapping flag_map[] = {
+	} flag_map[] = {
 		{SDL_WINDOW_RESIZABLE, PLATFORM_WINDOW_FEATURE_RESIZABLE},
 		{SDL_WINDOW_FULLSCREEN, PLATFORM_WINDOW_FEATURE_FULLSCREEN},
 		{SDL_WINDOW_BORDERLESS, PLATFORM_WINDOW_FEATURE_BORDERLESS},
@@ -27,149 +25,177 @@ static SDL_WindowFlags translate_window_feature_flags(uint32_t abstract_flags)
 	return native_flags;
 }
 
-static void start_sdl_platform(struct platform *platform, struct platform_desc *desc)
+static uintptr_t create_sdl_backend(void)
 {
-	struct platform_sdl_override *override = NULL;
 	SDL_InitFlags init_flags = SDL_INIT_VIDEO | SDL_INIT_EVENTS;
 
-	assert(platform);
-	if (desc && desc->override && desc->override->handle && desc->override->size == sizeof(struct platform_sdl_override)) {
-		override = (struct platform_sdl_override *)desc->override->handle;
-	}
-	if (override) {
-		init_flags = (SDL_InitFlags)override->init_flags;
-		if (override->exec_pre_start_hook) {
-			override->exec_pre_start_hook(platform);
-		}
-	}
 	if (!SDL_Init(init_flags)) {
-		return;
+		return (uintptr_t)NULL;
 	}
-	if (override && override->exec_post_start_hook) {
-		override->exec_post_start_hook(platform);
-	}
-	platform->native_handle = 0; /* NOTE: Unused for this backend. */
+	return (uintptr_t)1; /* Token value since SDL has no explicit state. */
 }
 
-static void shutdown_sdl_platform(struct platform *platform)
+static void destroy_sdl_backend(const uintptr_t platform)
 {
-	assert(platform);
+	(void)platform; /* Unused on SDL. */
 	SDL_Quit();
-	platform->native_handle = 0;
 }
 
-static bool poll_sdl_event(struct platform *platform, struct platform_event *event_out)
+static bool poll_sdl_event(struct platform_event *event_out, 
+		const uintptr_t platform)
 {
 	SDL_Event native_event;
 
-	assert(platform);
-	assert(event_out);
-	while (SDL_PollEvent(&native_event)) {
-		switch (native_event.type) {
-		/* Application events */
-		case SDL_EVENT_QUIT:
-			event_out->type = PLATFORM_EVENT_TYPE_QUIT;
-			break;
-		/* Window events */
-		case SDL_EVENT_WINDOW_SHOWN:
-		case SDL_EVENT_WINDOW_HIDDEN:
-		case SDL_EVENT_WINDOW_RESIZED:
-		case SDL_EVENT_WINDOW_MINIMIZED:
-		case SDL_EVENT_WINDOW_MAXIMIZED:
-		case SDL_EVENT_WINDOW_DESTROYED:
-		case SDL_EVENT_WINDOW_FOCUS_GAINED:
-		case SDL_EVENT_WINDOW_FOCUS_LOST:
-			break;
-		/* Keyboard events */
-		case SDL_EVENT_KEY_DOWN:
-		case SDL_EVENT_KEY_UP:
-		case SDL_EVENT_KEYBOARD_ADDED:
-		case SDL_EVENT_KEYBOARD_REMOVED:
-			break;
-		/* Mouse events */
-		case SDL_EVENT_MOUSE_MOTION:
-		case SDL_EVENT_MOUSE_BUTTON_DOWN:
-		case SDL_EVENT_MOUSE_BUTTON_UP:
-		case SDL_EVENT_MOUSE_WHEEL:
-		case SDL_EVENT_MOUSE_ADDED:
-		case SDL_EVENT_MOUSE_REMOVED:
-			break;
-		default:
-			return false;
-			break;
-		}
+	(void)platform;
+	if (!SDL_PollEvent(&native_event)) {
+		return false;
+	}
+	switch (native_event.type) {
+	/* Application events */
+	case SDL_EVENT_QUIT:
+		event_out->type = PLATFORM_EVENT_TYPE_QUIT;
+		break;
+	/* Window events */
+	case SDL_EVENT_WINDOW_SHOWN:
+		event_out->type = PLATFORM_EVENT_TYPE_WINDOW_SHOWN;
+		break;
+	case SDL_EVENT_WINDOW_HIDDEN:
+		event_out->type = PLATFORM_EVENT_TYPE_WINDOW_HIDDEN;
+		break;
+	case SDL_EVENT_WINDOW_RESIZED:
+		event_out->type = PLATFORM_EVENT_TYPE_WINDOW_RESIZED;
+		break;
+	case SDL_EVENT_WINDOW_MINIMIZED:
+		event_out->type = PLATFORM_EVENT_TYPE_WINDOW_MINIMIZED;
+		break;
+	case SDL_EVENT_WINDOW_MAXIMIZED:
+		event_out->type = PLATFORM_EVENT_TYPE_WINDOW_MAXIMIZED;
+		break;
+	case SDL_EVENT_WINDOW_DESTROYED:
+		event_out->type = PLATFORM_EVENT_TYPE_WINDOW_DESTROYED;
+		break;
+	case SDL_EVENT_WINDOW_FOCUS_GAINED:
+		event_out->type = PLATFORM_EVENT_TYPE_WINDOW_FOCUS_GAINED;
+		break;
+	case SDL_EVENT_WINDOW_FOCUS_LOST:
+		event_out->type = PLATFORM_EVENT_TYPE_WINDOW_FOCUS_LOST;
+		break;
+	/* Keyboard events */
+	case SDL_EVENT_KEY_DOWN:
+		event_out->type = PLATFORM_EVENT_TYPE_KEY_DOWN;
+		break;
+	case SDL_EVENT_KEY_UP:
+		event_out->type = PLATFORM_EVENT_TYPE_KEY_UP;
+		break;
+	case SDL_EVENT_KEYBOARD_ADDED:
+		event_out->type = PLATFORM_EVENT_TYPE_KEYBOARD_ADDED;
+		break;
+	case SDL_EVENT_KEYBOARD_REMOVED:
+		event_out->type = PLATFORM_EVENT_TYPE_KEYBOARD_REMOVED;
+		break;
+	/* Mouse events */
+	case SDL_EVENT_MOUSE_MOTION:
+		event_out->type = PLATFORM_EVENT_TYPE_MOUSE_MOTION;
+		break;
+	case SDL_EVENT_MOUSE_BUTTON_DOWN:
+		event_out->type = PLATFORM_EVENT_TYPE_MOUSE_BUTTON_DOWN;
+		break;
+	case SDL_EVENT_MOUSE_BUTTON_UP:
+		event_out->type = PLATFORM_EVENT_TYPE_MOUSE_BUTTON_UP;
+		break;
+	case SDL_EVENT_MOUSE_WHEEL:
+		event_out->type = PLATFORM_EVENT_TYPE_MOUSE_WHEEL;
+		break;
+	case SDL_EVENT_MOUSE_ADDED:
+		event_out->type = PLATFORM_EVENT_TYPE_MOUSE_ADDED;
+		break;
+	case SDL_EVENT_MOUSE_REMOVED:
+		event_out->type = PLATFORM_EVENT_TYPE_MOUSE_REMOVED;
+		break;
+	default:
+		event_out->type = PLATFORM_EVENT_TYPE_UNDEFINED;
+		break;
 	}
 	return true;
 }
 
-static void init_sdl_window(struct platform_window_handle *window, struct platform_window_desc *desc)
+static uintptr_t create_sdl_window(const struct platform_window_desc *desc,
+		const uintptr_t platform)
 {
-	struct platform_sdl_window_override *override = NULL;
-	SDL_WindowFlags feature_flags = 0;
-	SDL_Window *native_window = NULL;
+	SDL_WindowFlags feature_flags;
+	SDL_Window *native_window;
 
-	assert(window);
-	assert(window->parent_platform); /* NOTE: Not necessary, but we'll keep it here for the moment. */
-	if (desc && desc->override && desc->override->handle 
-			&& desc->override->size == sizeof(struct platform_sdl_window_override)) {
-		override = (struct platform_sdl_window_override *)desc->override->handle;
-	}
-	if (override) {
-		feature_flags = (SDL_WindowFlags)override->feature_flags;
-	} else if (desc->feature_flags) {
-		feature_flags = translate_window_feature_flags(desc->feature_flags);
-	}
-	native_window = SDL_CreateWindow(desc->title, desc->width, desc->height, feature_flags);
+	(void)platform;
+	feature_flags = translate_window_feature_flags(desc->feature_flags);
+	native_window = SDL_CreateWindow(desc->title, desc->width, desc->height, 
+			feature_flags);
 	if (!native_window) {
-		return;
+		return (uintptr_t)NULL;
 	}
-	window->native_handle = (uintptr_t)native_window;
-	SDL_ShowWindow((SDL_Window *)window->native_handle);
+	return (uintptr_t)native_window;
 }
 
-static void finish_sdl_window(struct platform_window_handle *window)
+static void destroy_sdl_window(uintptr_t window)
 {
-	if (window && window->parent_platform) {
-		SDL_DestroyWindow((SDL_Window *)window->native_handle);
-	}
+	SDL_DestroyWindow((SDL_Window *)window);
 }
 
-static void init_sdl_surface(struct platform_surface_handle *surface,
-		struct platform_surface_desc *desc)
+static uintptr_t create_sdl_surface(const struct platform_surface_desc *desc, 
+		const uintptr_t platform)
 {
-	SDL_Surface *native_surface = NULL;
+	SDL_Surface *native_surface;
 
-	assert(surface);
-	if (!desc) {
-		return;
-	}
+	(void)platform;
 	/* TODO: Settle on proper contract for the pitch, possibly something portable. *
 	 * Right now it's 'width * 4', which aligns with the 'BGRA8888' format. */
 	native_surface = SDL_CreateSurfaceFrom(desc->width, desc->height, 
-			SDL_PIXELFORMAT_BGRA8888, desc->pixel_data,
+			SDL_PIXELFORMAT_BGRA8888, desc->pixel_buffer,
 			desc->width * 4); 
 	if (!native_surface) {
-		return;
+		return (uintptr_t)NULL;
 	}
-	surface->native_handle = (uintptr_t)native_surface;
-	surface->pitch = native_surface->pitch;
+	return (uintptr_t)native_surface;
 }
 
-static void finish_sdl_surface(struct platform_surface_handle *surface)
+static void destroy_sdl_surface(const uintptr_t surface)
 {
-	assert(surface);
-	SDL_DestroySurface((SDL_Surface *)surface->native_handle);
+	SDL_DestroySurface((SDL_Surface *)surface);
 }
 
-void platform_sdl_bind(struct platform *platform)
+static void blit_sdl_surface(const uintptr_t surface, 
+		const struct platform_surface_blit_desc *surface_blit_desc, 
+		const uintptr_t window)
 {
-	if (platform) {
-		platform->start = start_sdl_platform;
-		platform->shutdown = shutdown_sdl_platform;
-		platform->poll_event = poll_sdl_event;
-		platform->init_window = init_sdl_window;
-		platform->finish_window = finish_sdl_window;
-		platform->init_surface = init_sdl_surface;
-		platform->finish_surface = finish_sdl_surface;
-	}
+	SDL_Rect source_rect = {
+		.x = surface_blit_desc->source.x,
+		.y = surface_blit_desc->source.y,
+		.w = surface_blit_desc->source.width,
+		.h = surface_blit_desc->source.height
+	};
+	SDL_Rect dest_rect = {
+		.x = surface_blit_desc->destination.x,
+		.y = surface_blit_desc->destination.y,
+		.w = surface_blit_desc->destination.width,
+		.h = surface_blit_desc->destination.height
+	};
+
+	/* TODO: Check if blit desc has valid values. */
+	SDL_BlitSurface((SDL_Surface *)surface, &source_rect,
+			SDL_GetWindowSurface((SDL_Window *)window), &dest_rect);
+	SDL_UpdateWindowSurface((SDL_Window *)window);
+	/* TODO: Check if BlitSurface failed. */
+}
+
+struct platform_interface platform_sdl_make_interface(void)
+{
+	return (struct platform_interface) {
+		.create_backend = create_sdl_backend,
+		.destroy_backend = destroy_sdl_backend,
+		.poll_event = poll_sdl_event,
+		.create_window = create_sdl_window,
+		.destroy_window = destroy_sdl_window,
+		.create_surface = create_sdl_surface,
+		.destroy_surface = destroy_sdl_surface,
+		.blit_surface = blit_sdl_surface
+	};
 }

@@ -1,18 +1,7 @@
 #ifndef PLATFORM_SDL_H
 #define PLATFORM_SDL_H
+#include "platform.h"
 
-struct platform;
-
-struct platform_sdl_override {
-	uint32_t init_flags;
-	void (*exec_pre_start_hook)(struct platform *);
-	void (*exec_post_start_hook)(struct platform *);
-};
-
-struct platform_sdl_window_override {
-	uint64_t feature_flags;
-};
-
-void platform_sdl_bind(struct platform *platform);
+struct platform_interface platform_sdl_make_interface(void);
 
 #endif
