@@ -365,7 +365,7 @@ struct platform_interface {
 	uintptr_t (*create_backend)(void);
 	void (*destroy_backend)(const uintptr_t platform_handle);
 	bool (*poll_event)(struct platform_event *event_out,
-			uintptr_t platform_handle);
+			const uintptr_t platform_handle);
 	uintptr_t (*create_window)(
 			const struct platform_window_desc *window_desc, 
 			const uintptr_t platform_handle);
