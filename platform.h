@@ -375,7 +375,7 @@ struct platform_interface {
 			const uintptr_t platform_handle);
 	void (*destroy_surface)(const uintptr_t surface_handle);
 	void (*blit_surface)(const uintptr_t surface_handle, 
-			const struct platform_surface_blit_desc *, 
+			const struct platform_surface_blit_desc *blit_desc,
 			const uintptr_t window_handle);
 };
 
