@@ -39,7 +39,7 @@ enum platform_event_type {
 	PLATFORM_EVENT_TYPE_GAMEPAD_REMOVED,
 	/* Clipboard events */
 	PLATFORM_EVENT_TYPE_CLIPBOARD_UPDATE,
-	/* */
+	/* Number of event types */
 	PLATFORM_EVENT_TYPE_NUMBER_OF
 };
 
