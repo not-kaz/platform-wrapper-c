@@ -186,9 +186,9 @@ static void blit_sdl_surface(const uintptr_t surface,
 	/* TODO: Check if BlitSurface failed. */
 }
 
-struct platform_interface platform_sdl_make_interface(void)
+const struct platform_interface *platform_sdl_get_interface(void)
 {
-	return (struct platform_interface) {
+	static const struct platform_interface sdl_interface = {
 		.create_backend = create_sdl_backend,
 		.destroy_backend = destroy_sdl_backend,
 		.poll_event = poll_sdl_event,
@@ -198,4 +198,6 @@ struct platform_interface platform_sdl_make_interface(void)
 		.destroy_surface = destroy_sdl_surface,
 		.blit_surface = blit_sdl_surface
 	};
+
+	return &sdl_interface;
 }

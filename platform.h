@@ -385,16 +385,16 @@ struct platform {
 };
 
 static inline bool platform_init(struct platform *platform, 
-		struct platform_interface platform_interface)
+		const struct platform_interface *platform_interface)
 {
 	uintptr_t handle;
 
-	handle = platform_interface.create_backend();
+	handle = platform_interface->create_backend();
 	if (handle == (uintptr_t)NULL) {
 		return false;
 	}
 	platform->handle = handle;
-	platform->interface = platform_interface;
+	platform->interface = *platform_interface;
 	return true;
 }
 
